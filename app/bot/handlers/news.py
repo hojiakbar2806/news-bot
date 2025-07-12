@@ -13,3 +13,9 @@ router = Router()
 async def echo(message: Message):
     delete_chat_id(message.chat.id)
     await message.answer("✅ Bot to'xtadi!")
+
+
+@router.channel_post(Command("stop"))
+async def echo(message: Message):
+    delete_chat_id(message.chat.id)
+    await message.answer("✅ Bot to'xtadi!")
