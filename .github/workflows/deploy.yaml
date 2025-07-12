@@ -27,11 +27,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd ~/uzum-bot || exit 1
+            cd ~/news-bot || exit 1
             git pull
-
             find . -type d -name '__pycache__' -exec rm -rf {} +
-
             python -m venv .venv
             source .venv/bin/activate
             pip install -r requirements.txt
