@@ -1,0 +1,41 @@
+name: Uzum-bot Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/uzum-bot || exit 1
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Clean __pycache__
+            find . -type d -name '__pycache__' -exec rm -rf {} +
+
+            # Poetry install
+            poetry install --no-root --no-interaction
+
+            # Restart process
+            pm2 restart news-bot || pm2 start app/main.py --name news-bot
