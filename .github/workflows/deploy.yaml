@@ -28,13 +28,10 @@ jobs:
           port: 22
           script: |
             cd ~/uzum-bot || exit 1
-            git fetch origin main
-            git reset --hard origin/main
+            git pull
 
-            # Clean __pycache__
             find . -type d -name '__pycache__' -exec rm -rf {} +
 
-            # Poetry install
             python -m venv .venv
             source .venv/bin/activate
             pip install -r requirements.txt
