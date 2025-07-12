@@ -10,8 +10,16 @@ from app.bot.instance import bot
 from app.utils.cache import get_chat_ids
 
 
-async def watch_kunuz(chat: str):
-    @tg_client.on(events.NewMessage(chats=chat))
+async def watch_kunuz(channel_username: str):
+    # Kanal chat_id sini topamiz
+    try:
+        entity = await tg_client.get_entity(channel_username)
+        watching_chat_id = entity.id
+    except Exception as e:
+        print(f"❌ Kanalni aniqlab bo‘lmadi: {e}")
+        return
+
+    @tg_client.on(events.NewMessage(chats=channel_username))
     async def handler(event):
         msg = event.message
 
@@ -27,6 +35,9 @@ async def watch_kunuz(chat: str):
             photo = FSInputFile(file_path)
 
             for chat_id in get_chat_ids():
+                # O‘zi kuzatayotgan kanalga yuborilmasin
+                if int(chat_id) == int(watching_chat_id):
+                    continue
                 try:
                     await bot.send_photo(
                         chat_id=chat_id,
@@ -43,5 +54,5 @@ async def watch_kunuz(chat: str):
             print(f"❌ Media yuklashda xatolik: {e}")
 
     await tg_client.start()
-    print(f"✅ {chat} kuzatilyapti...")
+    print(f"✅ {channel_username} ({watching_chat_id}) kuzatilyapti...")
     await tg_client.run_until_disconnected()
