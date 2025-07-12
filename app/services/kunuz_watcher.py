@@ -1,6 +1,4 @@
 import os
-from typing import List, Union
-from aiogram import Bot
 from aiogram.types import FSInputFile
 from telethon import events
 from telethon.tl.types import MessageMediaPhoto
@@ -10,16 +8,8 @@ from app.bot.instance import bot
 from app.utils.cache import get_chat_ids
 
 
-async def watch_kunuz(channel_username: str):
-    # Kanal chat_id sini topamiz
-    try:
-        entity = await tg_client.get_entity(channel_username)
-        watching_chat_id = entity.id
-    except Exception as e:
-        print(f"❌ Kanalni aniqlab bo‘lmadi: {e}")
-        return
-
-    @tg_client.on(events.NewMessage(chats=channel_username))
+async def watch_kunuz(chat: str):
+    @tg_client.on(events.NewMessage(chats=chat))
     async def handler(event):
         msg = event.message
 
@@ -35,9 +25,6 @@ async def watch_kunuz(channel_username: str):
             photo = FSInputFile(file_path)
 
             for chat_id in get_chat_ids():
-                # O‘zi kuzatayotgan kanalga yuborilmasin
-                if int(chat_id) == int(watching_chat_id):
-                    continue
                 try:
                     await bot.send_photo(
                         chat_id=chat_id,
@@ -54,5 +41,5 @@ async def watch_kunuz(channel_username: str):
             print(f"❌ Media yuklashda xatolik: {e}")
 
     await tg_client.start()
-    print(f"✅ {channel_username} ({watching_chat_id}) kuzatilyapti...")
+    print(f"✅ {chat} kuzatilyapti...")
     await tg_client.run_until_disconnected()
