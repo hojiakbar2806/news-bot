@@ -35,7 +35,7 @@ jobs:
             find . -type d -name '__pycache__' -exec rm -rf {} +
 
             # Poetry install
-            poetry install --no-root --no-interaction
-
-            # Restart process
-            pm2 restart news-bot || pm2 start app/main.py --name news-bot
+            python -m venv .venv
+            source .venv/bin/activate
+            pip install -r requirements.txt
+            pm2 restart news-bot
